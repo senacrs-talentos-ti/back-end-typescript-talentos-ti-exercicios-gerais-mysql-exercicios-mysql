@@ -1,6 +1,9 @@
 name: MySQL CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main  # Adapte para o branch que deseja monitorar
 
 jobs:
   build:
@@ -17,9 +20,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Run MySQL scripts
         env:
           MYSQL_ROOT_PASSWORD: rootpassword
         run: |
           sudo apt-get install mysql-client
           mysql -h 127.0.0.1 -u root -prootpassword -e "source sql/queries.sql"
+          
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: my-feature-branch  # Nome do branch que será criado
+          base: main  # Branch base para o pull request
+          title: 'Automatic Pull Request'
+          body: |
+            This pull request is automatically created by GitHub Actions.
+            - [ ] Review changes
+            - [ ] Approve and merge
